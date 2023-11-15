@@ -1,12 +1,29 @@
 #!/usr/bin/env python3
 '''\
 Add obsidian tags to all markdown files in folder.
+obsidian-add-tags.py
+
+Usage:
+  - set these values at the top of the script
+    - SrcPathName
+      - * the path to the folder with the markdown files you want to tag *
+    - DestPathName
+      - * the path to the folder where the tagged files should be created) *
+    - TagsToAdd
+      - * an array of tag names to be added to the files *
+  - run the script
+    - ```python obsidian-add-tags.py```
+  - if the output files look good, you can replace the original files with them
+  
+  You can also import the ObsidianTagAdder class and use it directly.
+    
 
 ToDo:
- - compare tags from body before adding
- - add command-line parameters
- - refactor ObsidianTagAdder.addTags() to something prettier
- - unit tests
+  - compare tags from body before adding
+  - add command-line parameters
+  - add a parameter for output control
+  - refactor ObsidianTagAdder.addTags() to something prettier
+  - unit tests
 '''
 
 import glob, re, os, shutil
