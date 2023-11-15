@@ -9,12 +9,12 @@ ToDo:
  - unit tests
 '''
 
-import os, glob, re, shutil
+import glob, re, os, shutil
 import frontmatter
 
-SrcPathName = 'E:/jeff/keep/temp'
+SrcPathName = 'E:/jeff/keep/temp/untagged'
 DestPathName = 'E:/jeff/keep/temp/tagged'
-TagsToAdd = ['fromKeep/2023-11-11', 'fromKeep/asImported']
+TagsToAdd = ['fromKeep/2023-11-10', 'fromKeep/asImported']
 
 class ObsidianTagAdder:
     
@@ -22,8 +22,6 @@ class ObsidianTagAdder:
         self.srcPathName = srcPathName
         self.destPathName = destPathName
         self.filePattern = filePattern
-        # print('from: ' + srcPathName);
-        # print('to: ' + destPathName);
         if not os.path.exists(self.destPathName): 
             os.makedirs(self.destPathName)
 
@@ -35,14 +33,15 @@ class ObsidianTagAdder:
         print('from ' + self.srcPathName)
         print('to ' + self.destPathName)
         for srcFilePath in glob.glob(os.path.join(self.srcPathName, self.filePattern)): #[:10]:
+            modification_time = os.path.getmtime(srcFilePath)
             fileName = os.path.split(srcFilePath)[1]        
             destFilePath = os.path.join(self.destPathName, fileName)
             with open(srcFilePath, encoding="utf-8-sig") as inFile:
                 try: 
                    parser = frontmatter.load(inFile)
                 except:
+                    shutil.copy2(srcFilePath, destFilePath)
                     print('!!! parsing error: ' + fileName)
-                    shutil.copyfile(srcFilePath, destFilePath)
                     continue
                 docTags = parser.metadata.get('tags', [])
                 for newTag in tagNames:
@@ -51,6 +50,8 @@ class ObsidianTagAdder:
                 parser.metadata['tags'] = docTags
                 with open(destFilePath, 'wb') as outFile:
                     frontmatter.dump(parser, outFile)
+                access_time = os.path.getatime(destFilePath)
+                os.utime(destFilePath, (access_time, modification_time))
         print('...done')
                     
         
