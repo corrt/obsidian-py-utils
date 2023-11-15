@@ -10,7 +10,7 @@ ToDo:
  - actually add/replace tags
 '''
 
-import os, glob, re
+import os, glob, re, shutil
 import frontmatter
 
 globalSrcPathName = 'E:/jeff/keep/temp'
@@ -33,17 +33,22 @@ class ObsidianTagAdder:
     def addTags(self, tagNames=[]):
         for srcFilePath in glob.glob(os.path.join(self.srcPathName, self.filePattern)): #[:10]:
             fileName = os.path.split(srcFilePath)[1]        
+            destFilePath = os.path.join(self.destPathName, fileName)
             print('* ' + srcFilePath)
             print('** ' + fileName)
-            with open(srcFilePath) as inFile:
-                parser = frontmatter.load(inFile)
+            with open(srcFilePath, encoding="utf-8-sig") as inFile:
+                try: 
+                   parser = frontmatter.load(inFile)
+                except:
+                    print('!!! parsing error')
+                    shutil.copyfile(srcFilePath, destFilePath)
+                    continue                    
                 print('***m')
                 print(parser.metadata)
                 #print(parser.bodyTags)
                 print('***c')
                 #print(parser.content[:50])
                 print(frontmatter.dumps(parser)[:100])
-                destFilePath = os.path.join(self.destPathName, fileName)
                 with open(destFilePath, 'wb') as outFile:
                     frontmatter.dump(parser, outFile)
                     print('**** ' + destFilePath)
