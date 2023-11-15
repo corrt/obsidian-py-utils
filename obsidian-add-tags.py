@@ -13,13 +13,10 @@ ToDo:
 import os, glob, re, shutil
 import frontmatter
 
-globalSrcPathName = 'E:/jeff/keep/temp'
-globalDestPathName = 'E:/jeff/keep/temp/tagged'
-
-#print re.search(r"---\s*\n(.*)\n---", aaa, re.DOTALL).group(0)
+SrcPathName = 'E:/jeff/keep/temp'
+DestPathName = 'E:/jeff/keep/temp/tagged'
 
 class ObsidianTagAdder:
-
     
     def __init__(self, srcPathName, destPathName, filePattern='*.md'):
         self.srcPathName = srcPathName
@@ -31,31 +28,29 @@ class ObsidianTagAdder:
             os.makedirs(self.destPathName)
 
     def addTags(self, tagNames=[]):
+        if len(tagNames) == 0:
+            print('!!! no tags to add')
+            return            
+        print('adding tags...')
+        print('from ' + self.srcPathName)
+        print('to ' + self.srcPathName)
         for srcFilePath in glob.glob(os.path.join(self.srcPathName, self.filePattern)): #[:10]:
             fileName = os.path.split(srcFilePath)[1]        
             destFilePath = os.path.join(self.destPathName, fileName)
-            print('* ' + srcFilePath)
-            print('** ' + fileName)
             with open(srcFilePath, encoding="utf-8-sig") as inFile:
                 try: 
                    parser = frontmatter.load(inFile)
                 except:
-                    print('!!! parsing error')
+                    print('!!! parsing error: ' + fileName)
                     shutil.copyfile(srcFilePath, destFilePath)
                     continue                    
-                print('***m')
-                print(parser.metadata)
-                #print(parser.bodyTags)
-                print('***c')
-                #print(parser.content[:50])
-                print(frontmatter.dumps(parser)[:100])
                 with open(destFilePath, 'wb') as outFile:
                     frontmatter.dump(parser, outFile)
-                    print('**** ' + destFilePath)
+        print('...done')
                     
         
 if __name__ == '__main__':
-    tagAdder = ObsidianTagAdder(globalSrcPathName, globalDestPathName)
+    tagAdder = ObsidianTagAdder(SrcPathName, DestPathName)
     tagAdder.addTags();
         
 
