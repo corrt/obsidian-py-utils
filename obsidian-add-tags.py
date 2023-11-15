@@ -2,12 +2,11 @@
 '''\
 Add obsidian tags to all markdown files in folder.
 
-in development
 ToDo:
- - frotmatter dumps no header as --- {} ---
- - needs error handler for unicode issues
- - also get tags from body (not sure how to get/set body as text from frontmatter)
- - actually add/replace tags
+ - compare tags from body before adding
+ - add command-line parameters
+ - refactor ObsidianTagAdder.addTags() to something prettier
+ - unit tests
 '''
 
 import os, glob, re, shutil
@@ -15,6 +14,7 @@ import frontmatter
 
 SrcPathName = 'E:/jeff/keep/temp'
 DestPathName = 'E:/jeff/keep/temp/tagged'
+TagsToAdd = ['fromKeep/2023-11-11', 'fromKeep/asImported']
 
 class ObsidianTagAdder:
     
@@ -33,7 +33,7 @@ class ObsidianTagAdder:
             return            
         print('adding tags...')
         print('from ' + self.srcPathName)
-        print('to ' + self.srcPathName)
+        print('to ' + self.destPathName)
         for srcFilePath in glob.glob(os.path.join(self.srcPathName, self.filePattern)): #[:10]:
             fileName = os.path.split(srcFilePath)[1]        
             destFilePath = os.path.join(self.destPathName, fileName)
@@ -43,7 +43,12 @@ class ObsidianTagAdder:
                 except:
                     print('!!! parsing error: ' + fileName)
                     shutil.copyfile(srcFilePath, destFilePath)
-                    continue                    
+                    continue
+                docTags = parser.metadata.get('tags', [])
+                for newTag in tagNames:
+                    if not newTag in docTags:
+                        docTags.append(newTag)
+                parser.metadata['tags'] = docTags
                 with open(destFilePath, 'wb') as outFile:
                     frontmatter.dump(parser, outFile)
         print('...done')
@@ -51,6 +56,6 @@ class ObsidianTagAdder:
         
 if __name__ == '__main__':
     tagAdder = ObsidianTagAdder(SrcPathName, DestPathName)
-    tagAdder.addTags();
+    tagAdder.addTags(TagsToAdd);
         
 
